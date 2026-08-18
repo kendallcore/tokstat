@@ -11,6 +11,7 @@ import sys
 from .aider import AiderCollector
 from .base import EVENT_COLUMNS, BaseCollector  # noqa: F401
 from .claude_code import ClaudeCodeCollector
+from .codex import CodexCollector
 from .copilot import CopilotCollector
 from .gemini_antigravity import GeminiAntigravityCollector
 from .legacy_sync import LegacySyncCollector
@@ -19,6 +20,7 @@ from .vscode_cursor import VSCodeCursorCollector
 COLLECTOR_CLASSES = [
     LegacySyncCollector,
     ClaudeCodeCollector,
+    CodexCollector,
     AiderCollector,
     GeminiAntigravityCollector,
     CopilotCollector,

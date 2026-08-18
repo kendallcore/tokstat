@@ -372,5 +372,47 @@ class TestOptionalCollectors(unittest.TestCase):
         self.assertEqual(events, [])
 
 
+class TestCodexCollector(unittest.TestCase):
+    def test_codex_collector_parses_threads(self):
+        import sqlite3, tempfile
+        from tokstat.collectors.codex import CodexCollector
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            db_path = os.path.join(tmp_dir, "state_5.sqlite")
+            conn = sqlite3.connect(db_path)
+            conn.execute("""
+                CREATE TABLE threads (
+                    id TEXT PRIMARY KEY,
+                    created_at_ms INTEGER,
+                    created_at INTEGER,
+                    model TEXT,
+                    model_provider TEXT,
+                    source TEXT,
+                    cwd TEXT,
+                    tokens_used INTEGER
+                )
+            """)
+            conn.execute("""
+                INSERT INTO threads (id, created_at_ms, model, model_provider, source, cwd, tokens_used)
+                VALUES ('t-1', 1772687080339, 'gpt-5.2-codex', 'openai', 'vscode', '/home/user/proj', 10000)
+            """)
+            conn.commit()
+            conn.close()
+
+            with patch("tokstat.collectors.codex.CODEX_DIR", tmp_dir):
+                collector = CodexCollector()
+                events, _ = collector.poll({})
+
+        self.assertEqual(len(events), 1)
+        ev = events[0]
+        self.assertEqual(ev["session_id"], "t-1")
+        self.assertEqual(ev["model_raw"], "gpt-5.2-codex")
+        self.assertEqual(ev["provider_id"], "openai")
+        self.assertEqual(ev["agent_name"], "codex_vscode")
+        self.assertEqual(ev["workspace_id"], "proj")
+        self.assertEqual(ev["total_tokens"], 10000)
+        self.assertEqual(ev["input_tokens"], 8500)
+        self.assertEqual(ev["output_tokens"], 1500)
+
+
 if __name__ == "__main__":
     unittest.main()

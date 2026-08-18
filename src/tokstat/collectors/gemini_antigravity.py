@@ -60,10 +60,13 @@ def _agent_name_for_brain_dir(brain_dir: str) -> str:
 def normalize_antigravity_model(raw_name: str) -> tuple[str, str]:
     """Extracts canonical model identifier and provider_id from raw settings string.
 
-    Strips parenthetical qualifiers like '(Thinking)' or '(High)', then
-    lowercases and hyphenates the result.
+    Strips parenthetical qualifiers like '(Thinking)' or '(High)', newlines,
+    escaped newlines, HTML tags and trailing punctuation/quotes.
     """
-    clean = re.sub(r"\s*\([^)]*\)", "", raw_name).strip()
+    clean = re.sub(r"\s*\([^)]*\)", "", raw_name)
+    clean = re.split(r"\\n|\n|\r|<", clean)[0]
+    clean = re.sub(r"[^a-zA-Z0-9\.\-\s]", "", clean).strip()
+    clean = re.sub(r"\.+$", "", clean).strip()
     clean_lower = clean.lower()
 
     if "claude" in clean_lower:
