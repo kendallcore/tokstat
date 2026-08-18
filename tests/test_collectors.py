@@ -374,7 +374,9 @@ class TestOptionalCollectors(unittest.TestCase):
 
 class TestCodexCollector(unittest.TestCase):
     def test_codex_collector_parses_threads(self):
-        import sqlite3, tempfile
+        import sqlite3
+        import tempfile
+
         from tokstat.collectors.codex import CodexCollector
         with tempfile.TemporaryDirectory() as tmp_dir:
             db_path = os.path.join(tmp_dir, "state_5.sqlite")

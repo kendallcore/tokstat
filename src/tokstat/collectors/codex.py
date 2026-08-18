@@ -9,7 +9,6 @@ import datetime
 import os
 import sqlite3
 
-from .. import config
 from .base import BaseCollector
 
 CODEX_DIR = os.path.expanduser("~/.codex")
